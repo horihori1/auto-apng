@@ -59,4 +59,41 @@ def process_images(file1, file2):
 
 # --- 画面表示 ---
 st.title("🔄 2枚画像 交互表示 APNG")
-st.caption(f"仕様：{FIXED_TOTAL_FRAMES}フレーム / {FIX
+st.caption(f"仕様：{FIXED_TOTAL_FRAMES}フレーム / {FIXED_LOOP_COUNT}ループ / フルカラー")
+
+col1, col2 = st.columns(2)
+with col1:
+    f1 = st.file_uploader("1枚目", type=["jpg", "png"], key="f1")
+with col2:
+    f2 = st.file_uploader("2枚目", type=["jpg", "png"], key="f2")
+
+if f1 and f2:
+    st.markdown("---")
+    # プレビュー
+    p1, p2, res = st.columns(3)
+    with p1:
+        st.image(f1, caption="1枚目", use_column_width=True)
+    with p2:
+        st.image(f2, caption="2枚目", use_column_width=True)
+        
+    # 自動生成
+    with st.spinner("生成中..."):
+        data, size = process_images(f1, f2)
+        
+    with res:
+        st.image(data, caption="生成結果", use_column_width=True)
+        
+        if size <= MAX_FILE_SIZE_KB:
+            st.success(f"容量 OK: {size:.1f}KB")
+        else:
+            st.error(f"容量超過: {size:.1f}KB")
+            
+        st.download_button(
+            "ダウンロード",
+            data=data,
+            file_name="alternating_5f_4loop.png",
+            mime="image/png",
+            type="primary"
+        )
+elif f1 or f2:
+    st.info("2枚の画像をアップロードしてください")
